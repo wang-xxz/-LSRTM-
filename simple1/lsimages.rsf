@@ -1,0 +1,92 @@
+3.1-git	sfmath	zxd/Software/simple1:	zxd@zxd-System-Product-Name	Sat Feb 27 15:13:01 2021
+
+	x2=1
+	d2=5
+	n2=200
+	o1=0
+	o2=0
+	label1="x1"
+	data_format="native_float"
+	label2="x2"
+	esize=4
+	in="/var/tmp/zxd/Software/simple1/vel1.rsf@"
+	unit1="m"
+	unit2="m"
+	x1=0
+	d1=5
+	n1=50
+3.1-git	sfcat	zxd/Software/simple1:	zxd@zxd-System-Product-Name	Wed Mar 24 06:11:10 2021
+
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/zxd/Software/simple1/vel.rsf@"
+	n1=200
+3.1-git	sfpad2	zxd/Software/simple1:	zxd@zxd-System-Product-Name	Wed Mar 24 06:11:10 2021
+
+	o1=-50
+	d2=5
+	n2=200
+	label1="x1"
+	o2=0
+	data_format="native_float"
+	label2="x2"
+	esize=4
+	in="/var/tmp/zxd/Software/simple1/vel-ext.rsf@"
+	unit1="m"
+	unit2="m"
+	d1=5
+	n1=210
+3.1-git	Mmshots.x	zxd/Software/simple1:	zxd@zxd-System-Product-Name	Wed Mar 24 06:11:14 2021
+
+	o1=0
+	d2=5
+	n2=200
+	jgz=0
+	jsx=19
+	fm=20
+	label1="Time"
+	d3=1
+	n3=10
+	data_format="native_float"
+	label2="Lateral"
+	jsz=0
+	ng=200
+	label3="Shot"
+	esize=4
+	gxbeg=0
+	ns=10
+	in="/var/tmp/zxd/Software/simple1/shot0.rsf@"
+	csdgather=0
+	gzbeg=2
+	sxbeg=5
+	unit1="sec"
+	amp=1
+	unit2="m"
+	jgx=1
+	szbeg=2
+	d1=0.001
+	n1=1500
+3.1-git	sfadd	zxd/Software/simple1:	zxd@zxd-System-Product-Name	Wed Mar 24 06:11:18 2021
+
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/zxd/Software/simple1/shots.rsf@"
+3.1-git	Mlsprtm2d.x	zxd/Software/simple1:	zxd@zxd-System-Product-Name	Mon Mar 29 04:12:05 2021
+
+	o1=-50
+	d2=5
+	n2=200
+	label1="Depth"
+	o2=0
+	n3=1
+	data_format="native_float"
+	label2="Distance"
+	esize=4
+	in="/var/tmp/zxd/Software/simple1/lsimage.rsf@"
+	d1=5
+	n1=210
+3.1-git	sfpwsmooth	zxd/Software/simple1:	zxd@zxd-System-Product-Name	Mon Mar 29 04:12:09 2021
+
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/zxd/Software/simple1/lsimages.rsf@"

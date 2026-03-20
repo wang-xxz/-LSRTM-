@@ -1,0 +1,23 @@
+3.1.1	sfmath	zxc/new/simple1:	zxc@zxd-system-product-name	Sun Apr 23 13:01:57 2023
+
+	x2=1
+	d2=5
+	n2=70
+	o1=0
+	o2=0
+	label1="x1"
+	data_format="native_float"
+	label2="x2"
+	esize=4
+	in="/var/tmp/zxc/new/simple1/vel31.rsf@"
+	unit1="m"
+	unit2="m"
+	x1=0
+	d1=5
+	n1=50
+3.1.1	sfcat	zxc/new/simple1:	zxc@zxd-system-product-name	Sun Apr 23 13:01:57 2023
+
+	n2=200
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/zxc/new/simple1/vel3.rsf@"
