@@ -1,0 +1,65 @@
+
+from rsf.proj import *
+from rsf.recipes import fdmod
+#proj = Project()
+#prog = proj.Program('lsrtm.c')
+#prog = proj.Program('awave.c')
+#Flow('vel',None, 
+#    '''
+#    echo in=v.bin n1=200 n2=200 data_format=binary_float |
+#    sfdd form=native |
+#    sfput d1=12 d2=12 o1=0 o2=0 label1="Depth" label2="Lateral" unit1="m" unit2="m"
+#    ''')
+def igrey3d(par):
+    return '''
+    byte allpos=n gainpanel=all |
+    grey3 flat=n frame1=2000 frame2=200 frame3=10
+    title= titlesz=10 font=3
+    label2=Trace unit2=km lable3=Shot unit3= point1=0.85 point2=0.85
+    labelsz=5
+    %s
+    ''' % par
+
+
+def igrey2d(par):
+    'grey 2d image for RTM images'
+    return '''
+    grey title=
+    scalebar=y bartype=v barwidth=0.2　polarity=y
+    screenratio=0.6 screenht=8
+    labelsz=5 labelfat=2
+    %s
+    ''' % par
+
+
+def mgrey2d(par):
+    'grey 2d image for encoded and cross-talk matrix images'
+    return '''
+    grey gainpanel=a bias=0.5
+    screenht=10 font=3
+    wantscalebar=n parallel2=n labelsz=5 labelfat=3 titlesz=10 titlefat=3
+    %s
+    ''' % par
+
+
+
+dip0 = 'marm-dip'
+Flow(dip0, 'marm-vel-ext',
+     'fdip verb=n rect1=5 rect2=5')
+
+Flow(['marms'],
+     ['marm-img', 'marm-dip'],
+    '''
+      pwsmooth ${SOURCES[3].abspath} dip=${SOURCES[1]}  verb=n ns=10 adj=true eps=0.01 order=2
+    ''')
+Result('marms',igrey2d('color=i wantscalebar=y pclip=99'))
+zoompar1 = 'min1=0 max1=1500 min2=6000 max2=9000'
+zoompar2 = 'min1=500 max1=1500 min2=4000 max2=7000'
+Result('marms-zoom1', 'marms',
+       'window %s | ' % zoompar1 + igrey2d('color=i scalebar=n pclip=99'))
+
+Result('marms-zoom2', 'marms',
+       'window %s | ' % zoompar2 + igrey2d('color=i scalebar=n pclip=99'))
+
+End()
+

@@ -1,0 +1,220 @@
+
+from rsf.proj import *
+from rsf.recipes import fdmod
+#proj = Project()
+#prog = proj.Program('lsrtm.c')
+#prog = proj.Program('awave.c')
+#Flow('vel',None, 
+#    '''
+#    echo in=v.bin n1=200 n2=200 data_format=binary_float |
+#    sfdd form=native |
+#    sfput d1=12 d2=12 o1=0 o2=0 label1="Depth" label2="Lateral" unit1="m" unit2="m"
+#    ''')
+def igrey3d(par):
+    return '''
+    byte allpos=n gainpanel=all |
+    grey3 flat=n frame1=2000 frame2=200 frame3=10
+    title= titlesz=10 font=3
+    label2=Trace unit2=km lable3=Shot unit3= point1=0.85 point2=0.85
+    labelsz=5
+    %s
+    ''' % par
+
+
+def igrey2d(par):
+    'grey 2d image for RTM images'
+    return '''
+    grey title=
+    scalebar=y bartype=v barwidth=0.2　polarity=y
+    screenratio=0.6 screenht=8
+    labelsz=5 labelfat=2
+    %s
+    ''' % par
+
+
+def mgrey2d(par):
+    'grey 2d image for encoded and cross-talk matrix images'
+    return '''
+    grey gainpanel=a bias=0.5
+    screenht=10 font=3
+    wantscalebar=n parallel2=n labelsz=5 labelfat=3 titlesz=10 titlefat=3
+    %s
+    ''' % par
+
+par_ = dict(nx=2301, ox=0, dx=4, lx='x', ux='m',
+            nz=751, oz=0, dz=4, lz='z', uz='m',
+            )
+
+Flow('marm-vel', 'marmvel.hh',
+     '''
+    dd form=native | put d1=%(dz)f d2=%(dx)f
+    label1=%(lz)s  unit1=%(uz)s label2=%(lx)s unit2=%(ux)s title= |
+    scale rscale=1 |
+    window j1=3 j2=3
+    out=stdout
+    ''' % par_)
+
+par = dict(
+    nx=767, ox=0, dx=12, lx='x', 
+    nz=251,  oz=0, dz=12, lz='z',
+    nt=4000, ot=0, dt=0.001, lt='t',
+    freq=15,
+    amp=1,
+    ns=64,nss=64, ng=767,
+    sxbeg=5, szbeg=2, jsx=12, jsz=0, gxbeg=0, gzbeg=3, jgx=1, jgz=0
+    )
+# extend model
+rtmpar = dict(
+    lft=0,
+    rht=0,
+    top=10,
+    bot=10
+)
+par['nx'] = par['nx'] + rtmpar['lft'] + rtmpar['rht']
+par['nz'] = par['nz'] + rtmpar['top'] + rtmpar['bot']
+par['ox'] = par['ox'] - rtmpar['lft'] * par['dx']
+par['oz'] = par['oz'] - rtmpar['top'] * par['dz']
+
+
+fdmod.param(par)
+
+winpar = 'min1=0 max1=3 min2=0 n1=251 n2=767'
+
+Flow('marm-vel-ext', 'marm-vel',
+     'pad2 left=%(lft)d right=%(rht)d top=%(top)d bottom=%(bot)d' % rtmpar)
+Plot('marm-vel-ext', fdmod.cgrey('color=j allpos=y bias=1.5 title=', par))
+
+Result('marm-vel', 'marm-vel-ext',
+       'window %s |' % winpar +
+       igrey2d('color=j mean=y wantaxis2=y scalebar=y bartype=v \
+        barwidth=0.2 barunit=km/s barlabel=Velocity'))
+
+# 创建均匀速度模型减去直达波
+cut = 2
+Flow('marm-vel-con', 'marm-vel-ext', 'window n1=%d | pad2 bottom=%d'
+     % (cut, par['nz'] - cut))
+Result('marm-vel-con',
+       'window %s | ' % winpar + igrey2d(
+    'title= wantscalebar=y pclip=99\
+    barlabel=Amplitude'))
+# 平滑速度模型
+Flow('marm-vel-ext-smo', 'marm-vel-ext', 'smooth rect1=5 rect2=5 repeat=2')
+Result('marm-vel-ext-smo',
+       'window %s | ' % winpar + igrey2d(
+    'title= wantscalebar=y color=j mean=y\
+    color=j barlabel=Amplitude'))
+
+# 计算反射系数
+Flow('marm-ref', 'marm-vel',
+     '''
+    depth2time velocity=$SOURCE nt=%(nt)d dt=%(dt)f |
+    ai2refl |
+    ricker1 frequency=%(freq)d |
+    time2depth velocity=$SOURCE
+    ''' % par)
+Result('marm-ref',
+       'window %s | ' % winpar + igrey2d(
+    'title= wantscalebar=y pclip=99\
+    barlabel=Amplitude'))
+
+prog1 = Program(Split('/home/zxd/Software/raodong.c'), PROGSUFFIX='.x',
+			LIBS=['rsfpwd', 'rsf', 'm', 'gomp', 'cblas','blas'])
+exe1 = str(prog1[0])
+
+Flow(['marmref'],
+     ['marm-vel-ext', 'marm-vel-ext-smo',exe1],
+    '''
+      ${SOURCES[2].abspath} velcon=${SOURCES[1]} 
+    ''')
+
+Result('marmref',
+       'window %s |' % winpar +igrey2d(
+    'title= wantscalebar=y pclip=99\
+    barlabel=Amplitude'))
+#generate seismogram with early arrivals (direct+diving wave) muted
+progs = Program(Split('/home/zxd/Software/Mmshots.c'), PROGSUFFIX='.x',
+			LIBS=['rsfpwd', 'rsf', 'm', 'gomp', 'cblas','blas'])
+exes = str(progs[0])
+
+Flow('shot0',['marm-vel-ext',exes],
+    '''
+     ${SOURCES[1].abspath} csdgather=n fm=%(freq)d amp=%(amp)d ns=%(ns)d nss=%(nss)d ng=%(ng)d n1=%(nz)d n2=%(nx)d d1=%(dz)d d2=%(dx)d
+    sxbeg=%(sxbeg)d szbeg=%(szbeg)d jsx=%(jsx)d jsz=%(jsz)d gxbeg=%(gxbeg)d gzbeg=%(gzbeg)d jgx=%(jgx)d jgz=%(jgz)d dt=%(dt)f nt=%(nt)d
+    mute=n vmute=1500 ntd=100
+    '''%par)
+Result('shot0', igrey3d('title frame1=2000 frame2=384 frame3=32'))
+Flow('shotcon',['marm-vel-con',exes],
+    '''
+     ${SOURCES[1].abspath} csdgather=n fm=%(freq)d amp=%(amp)d ns=%(ns)d nss=%(nss)d ng=%(ng)d n1=%(nz)d n2=%(nx)d d1=%(dz)d d2=%(dx)d
+    sxbeg=%(sxbeg)d szbeg=%(szbeg)d jsx=%(jsx)d jsz=%(jsz)d gxbeg=%(gxbeg)d gzbeg=%(gzbeg)d jgx=%(jgx)d jgz=%(jgz)d dt=%(dt)f nt=%(nt)d
+    mute=n vmute=1500 ntd=100
+    '''%par)
+Result('shotcon', igrey3d('title frame1=2000 frame2=384 frame3=32'))
+Flow('shots','shot0 shotcon',
+    '''
+    add ${SOURCES[1]} scale=1,-1
+    ''')
+Result('shots', igrey3d('title frame1=2000 frame2=384 frame3=32'))
+#Flow('lsrtm40','shots',
+#    '''
+#    lsprtm2d vel=vel.rsf imgrtm=rtm.rsf shot_born=dat2.rsf verb=y niter=10
+#    ''')
+
+prog2 = Program(Split('/home/zxd/rsf/lsrtm/Mlsprtm2d.c /home/zxd/rsf/lsrtm/prtm2d.c\
+		       /home/zxd/rsf/madagascar-3.0/user/pyang/pblas.c'), PROGSUFFIX='.x',
+		       LIBS=['rsfpwd', 'rsf', 'm', 'gomp', 'cblas','blas'])
+exe2 = str(prog2[0])
+
+dip0 = 'marm-dip'
+
+Flow(dip0, 'marm-vel-ext-smo',
+     'fdip verb=n rect1=3 rect2=3')
+
+Result(dip0, igrey2d('color=j'))
+
+Flow(['marm-img','imgrtm'],
+   ['shots', 'marm-vel-ext-smo',dip0,exe2],
+    '''
+      ${SOURCES[3].abspath} vel=${SOURCES[1]} dip=${SOURCES[2]}  verb=y niter=40
+    ''')
+
+Result('marm-img','window %s | ' % winpar+igrey2d('color=i wantscalebar=y pclip=99'))
+Result('imglsm1','window %s | ' % winpar+igrey2d('color=i wantscalebar=y pclip=99'))
+Result('imglsm5','window %s | ' % winpar+igrey2d('color=i wantscalebar=y pclip=99'))
+Result('imglsm10','window %s | ' % winpar+igrey2d('color=i wantscalebar=y pclip=99'))
+Result('imglsm20','window %s | ' % winpar+igrey2d('color=i wantscalebar=y pclip=99'))
+Result('imglsm30','window %s | ' % winpar+igrey2d('color=i wantscalebar=y pclip=99'))
+
+Flow('imglap', 'imglsm1',
+     'laplac adj=n')
+
+Result('imglap','window %s | ' % winpar+igrey2d('color=i wantscalebar=y pclip=99'))
+
+zoompar1 = 'min1=500 max1=1500 min2=6000 max2=9000'
+
+Result('marm-zoom1', 'marm-img',
+       'window %s | ' % zoompar1 + igrey2d('color=i scalebar=n pclip=99'))
+
+zoompar2 = 'min1=500 max1=1500 min2=4000 max2=7000'
+
+Result('marm-zoom2', 'marm-img',
+       'window %s | ' % zoompar2 + igrey2d('color=i scalebar=n pclip=99'))
+
+
+
+Flow(['marms'],
+     ['marm-img', dip0],
+    '''
+      pwsmooth ${SOURCES[3].abspath} dip=${SOURCES[1]}  verb=n ns=2 adj=n eps=0.01 order=10
+    ''')
+
+Result('marms','window %s | ' % winpar+igrey2d('color=i wantscalebar=y pclip=99'))
+
+Result('marms-zoom1', 'marms',
+       'window %s | ' % zoompar1 + igrey2d('color=i scalebar=n pclip=99'))
+
+Result('marms-zoom2', 'marms',
+       'window %s | ' % zoompar2 + igrey2d('color=i scalebar=n pclip=99'))
+
+End()
+

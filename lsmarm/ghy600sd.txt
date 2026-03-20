@@ -1,0 +1,33 @@
+NAME
+	sfdisfil
+DESCRIPTION
+	Print out data values.
+SYNOPSIS
+	sfdisfil < in.rsf number=y col=0 format= header= trailer=
+COMMENTS
+	
+	Alternatively, use sfdd and convert to ASCII form.
+	
+PARAMETERS
+	_______ col=0 	Number of columns.
+	       The default depends on the data type:
+	       10 for int and char,
+	       5 for float,
+	       3 for complex 
+	_______ format= 	Format for numbers (printf-style).
+	       The default depends on the data type:
+	       "%4d " for int and char,
+	       "%13.4g" for float,
+	       "%10.4g,%10.4gi" for complex 
+	_______ header= 	Optional header string to output before data 
+	_______ number=y [y/n]	If number the elements 
+	_______ trailer= 	Optional trailer string to output after data
+USED IN
+	rsf/tutorials/petro1
+	tccs/welllogs/logs
+SOURCE
+	system/main/disfil.c
+DOCUMENTATION
+	__________________________________________________________
+VERSION
+	3.1-git
