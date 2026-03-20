@@ -1,0 +1,9 @@
+3.1-git	sfmath	zxd/Software/marm-lsrtm:	zxd@zxd-System-Product-Name	Fri Jul 10 15:42:23 2020
+
+	o1=0
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/zxd/Software/marm-lsrtm/rx.rsf@"
+	x1=0
+	d1=0.008
+	n1=1151
