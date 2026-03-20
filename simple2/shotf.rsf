@@ -1,0 +1,127 @@
+0 750 1000 850 2000 600 3000 1000 4000 700 5000 600 n1=2 n2=6 in=lay1.asc data_format=ascii_float
+3.1-git	sfdd	zxd/Software/simple2:	zxd@zxd-System-Product-Name	Thu Sep 10 08:44:05 2020
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+3.1-git	sfspline	zxd/Software/simple2:	zxd@zxd-System-Product-Name	Thu Sep 10 08:44:05 2020
+
+	o1=0
+	n2=1
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/zxd/Software/simple2/lay1.rsf@"
+	d1=10
+	n1=501
+3.1-git	sfcat	zxd/Software/simple2:	zxd@zxd-System-Product-Name	Thu Sep 10 08:44:05 2020
+
+	n2=4
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/zxd/Software/simple2/lays.rsf@"
+3.1-git	sfunif2	zxd/Software/simple2:	zxd@zxd-System-Product-Name	Mon Jun 28 15:31:52 2021
+
+	o1=0
+	d2=10
+	n2=501
+	label1="Depth"
+	n3=1
+	o2=0
+	data_format="native_float"
+	n4=1
+	esize=4
+	in="stdout"
+	d1=10
+	n1=301
+	in="stdin"
+
+3.1-git	sfput	zxd/Software/simple2:	zxd@zxd-System-Product-Name	Mon Jun 28 15:31:52 2021
+
+	unit2=m
+	label=Velocity
+	label1=Depth
+	data_format="native_float"
+	label2=Distance
+	in="/var/tmp/zxd/Software/simple2/vel.rsf@"
+	unit1=m
+3.1-git	sfpad2	zxd/Software/simple2:	zxd@zxd-System-Product-Name	Mon Jun 28 15:31:52 2021
+
+	o1=0
+	d2=10
+	n2=501
+	label1="Depth"
+	o2=0
+	data_format="native_float"
+	label2="Distance"
+	esize=4
+	in="/var/tmp/zxd/Software/simple2/vel-ext.rsf@"
+	unit1="m"
+	unit2="m"
+	d1=10
+	n1=301
+3.1-git	Mmshots.x	zxd/Software/simple2:	zxd@zxd-System-Product-Name	Mon Jun 28 15:32:26 2021
+
+	o1=0
+	d2=10
+	n2=501
+	jgz=0
+	jsx=20
+	fm=20
+	label1="Time"
+	d3=1
+	n3=24
+	data_format="native_float"
+	label2="Lateral"
+	jsz=0
+	ng=501
+	label3="Shot"
+	esize=4
+	gxbeg=0
+	ns=24
+	in="/var/tmp/zxd/Software/simple2/shot0.rsf@"
+	csdgather=0
+	gzbeg=2
+	sxbeg=10
+	unit1="sec"
+	amp=1
+	unit2="m"
+	jgx=1
+	szbeg=2
+	d1=0.001
+	n1=2000
+3.1-git	sfadd	zxd/Software/simple2:	zxd@zxd-System-Product-Name	Mon Jun 28 15:32:55 2021
+
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/zxd/Software/simple2/shots.rsf@"
+3.1-git	Mlsprtm2d.x	zxd/Software/simple2:	zxd@zxd-System-Product-Name	Wed Oct 27 17:22:48 2021
+
+	o1=0
+	d2=10
+	n2=501
+	jgz=0
+	jsx=20
+	fm=20
+	label1="Time"
+	d3=1
+	n3=24
+	data_format="native_float"
+	label2="Lateral"
+	jsz=0
+	ng=501
+	label3="Shot"
+	esize=4
+	gxbeg=0
+	ns=24
+	in="/var/tmp/zxd/Software/simple2/shotf.rsf@"
+	gzbeg=2
+	sxbeg=10
+	unit1="sec"
+	amp=1
+	unit2="m"
+	jgx=1
+	szbeg=2
+	d1=0.001
+	n1=2000

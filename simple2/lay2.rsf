@@ -1,0 +1,17 @@
+0 1700 1000 1500 1500 1400 2000 1300 3000 1300 3500 1400 4000 1500 5000 1700 n1=2 n2=8 in=lay2.asc data_format=ascii_float
+3.1.1	sfdd	zxc/new/simple2:	zxc@zxd-system-product-name	Fri Mar 31 10:44:04 2023
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+3.1.1	sfspline	zxc/new/simple2:	zxc@zxd-system-product-name	Fri Mar 31 10:44:04 2023
+
+	o1=0
+	n2=1
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/zxc/new/simple2/lay2.rsf@"
+	d1=10
+	n1=501
